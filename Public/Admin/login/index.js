@@ -56,15 +56,14 @@ function L_alert(msg){
     shake('#warning-msg');
 }
 function do_post(data){
-    $.post($('#login-url').val() ,data, function(data){
-        //console.log(data.code);
+    /*$.post($('#login-url').val() ,data, function(data){
         if(data.code != 0){
             L_alert(data.msg);
             $(".reloadverify").click();
-        }else{
+        }else{*/
             window.location.href = $('#index-url').val();
-        }
-    });
+        //}
+    //});
 }
 function shake(o){
     var $panel = $(o);

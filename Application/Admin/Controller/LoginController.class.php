@@ -15,7 +15,7 @@ class LoginController extends Controller{
      */
     public function login(){
         if(is_login()){
-            //$this->redirect('Index/index');
+            $this->redirect('Index/index');
             return;
         }
         $verify = trim(I('verify'));
@@ -44,5 +44,13 @@ class LoginController extends Controller{
     public function verify(){
         $verify = new \Think\Verify();
         $verify->entry(1);
+    }
+
+    private function json_response($data){
+        $this->ajaxReturn(array(
+            'code' => empty($data['code']) ? 0 : $data['code'],
+            'msg' => empty($data['msg']) ? "" : $data['msg'],
+            'data' => empty($data['data']) ? "" : $data['data'],
+        ));
     }
 }
