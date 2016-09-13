@@ -1,0 +1,80 @@
+<input value="{:U('User/repass')}" id="repass-url" type="hidden">
+<!--changepass Modal Templates-->
+<div id="myModal" style="display:none;">
+    <div class="row">
+        <div id="horizontal-form">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label for="user-account" class="col-lg-offset-2 col-xs-offset-1 col-sm-2 col-xs-2 control-label no-padding-right">用户名</label>
+                    <div class="col-lg-6 col-md-6  col-sm-8 col-xs-8">
+                        <input type="text" class="form-control" name="account" id="user-account" disabled placeholder="account">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="user-new-passwd" class="col-lg-offset-2 col-xs-offset-1 col-sm-2 col-xs-2 control-label no-padding-right">新密码</label>
+                    <div class="col-lg-6 col-md-6  col-sm-8 col-xs-8">
+                        <input type="password" class="form-control" id="user-new-passwd">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="user-re-passwd" class="col-lg-offset-2 col-xs-offset-1 col-sm-2 col-xs-2 control-label no-padding-right">确认密码</label>
+                    <div class="col-lg-6 col-md-6  col-sm-8 col-xs-8">
+                        <input type="password" class="form-control" id="user-re-passwd">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--End changepass Templates-->
+<script src="__STATIC__/md5.js"></script>
+<script>
+    function changePasswd(account, successfun, cancelfun){
+        bootbox.dialog({
+            message: $("#myModal").html(),
+            title: "重置密码",
+            className: "modal-darkorange",
+            size: "small",
+            buttons: {
+                success: {
+                    label: "提交",
+                    className: "btn-blue",
+                    callback: function () {
+                        var url = $('#repass-url').val();
+                        var pass = $('.modal-darkorange').find('#user-new-passwd').val();
+                        var repass = $('.modal-darkorange').find('#user-re-passwd').val();
+                        if(repass == '' ||pass == ''){
+                            alert_info('warning', '错误', '密码不能为空');
+                            return false;
+                        }
+                        if(!/^[a-zA-z0-9_]{6,18}$/.test(pass)){
+                            alert_info('warning' , '提示' , '密码格式错误 应为 6 - 18 位字母数字或下划线');
+                            return false;
+                        }
+                        if(repass != pass){
+                            alert_info('warning', '错误', '两次输入密码不同');
+                            return false;
+                        }
+
+                        $.post(url,{account:account, pass:pass},function(data){
+                            if(data.code == 0){
+                                alert_info('success', '成功', '密码重置成功');
+                                if(successfun) successfun(pass);
+                                bootbox.hideAll();
+                            }else{
+                                alert_info('warning', '错误', data.msg);
+                                if(cancelfun) cancelfun(data.msg);
+                            }
+                        });
+                        return false;
+                    }
+                },
+                "取消": {
+                    className: "btn",
+                    callback: function () {}
+                }
+            }
+        });
+        $('.bootbox-body').find('#user-account').val(account);
+    }
+</script>

@@ -1,0 +1,89 @@
+<extend name="Base:base"/>
+<block name="css_link">
+</block>
+<block name="main">
+    <div class="'row">
+        <div class="col-lg-6 col-md-8  col-sm-8 col-xs-12 col-lg-offset-2 col-md-offset-1 col-sm-offset-1">
+            <div class="widget">
+                <div class="widget-header bordered-bottom bordered-lightred">
+                    <span class="widget-caption">修改密码</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <form class="form-horizontal" role="form" action="{:U('User/update_pass')}">
+                            <div class="form-group">
+                                <label for="user-account" class="col-sm-2 control-label no-padding-right">账号</label>
+                                <div class="col-lg-6 col-md-6  col-sm-10 col-xs-12">
+                                    <input type="text" class="form-control" id="user-account" disabled value="{$account}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-old-passwd" class="col-sm-2 control-label no-padding-right">原密码</label>
+                                <div class="col-lg-6 col-md-6  col-sm-10 col-xs-12">
+                                    <input type="password" class="form-control" id="user-old-passwd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-new-passwd" class="col-sm-2 control-label no-padding-right">新密码</label>
+                                <div class="col-lg-6 col-md-6  col-sm-10 col-xs-12">
+                                    <input type="password" class="form-control" id="user-new-passwd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-re-passwd" class="col-sm-2 control-label no-padding-right">确认密码</label>
+                                <div class="col-lg-6 col-md-6  col-sm-10 col-xs-12">
+                                    <input type="password" class="form-control" id="user-re-passwd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-default" id="sub-btn">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="logout-url" value="{:U('Login/logout')}">
+</block>
+<block name="js_link">
+    <script src="__STATIC__/md5.js"></script>
+    <script>
+        $('form').on('submit',function(e){
+            e.preventDefault();
+            var old_pw = $('#user-old-passwd').val();
+            var new_pw = $('#user-new-passwd').val();
+            var re_pw = $('#user-re-passwd').val();
+            if( re_pw != '' && new_pw != '' && old_pw != ''){
+                if(!/^[a-zA-z0-9_]{6,18}$/.test(new_pw)){
+                    alert_info('warning' , '提示' , '密码格式错误 应为 6 - 18 位字母数字或下划线');
+                    return false;
+                }
+                if(re_pw != new_pw){
+                    alert_info('warning' , '提示' , '两次密码不一致');
+                    return false;
+                }
+            }else{
+                alert_info('warning' , '提示' , '请填写完整');
+                return false;
+            }
+            var data = {
+                pass:hex_md5(old_pw),
+                new_pass:new_pw
+            }
+            $.post($(this).attr('action'),data,function(data){
+                if(data.code == 0){
+                    alert_info('success', '成功', '修改成功');
+                    setTimeout(function(){
+                        window.location.href = $('#logout-url').val();
+                    },2000);
+                }else{
+                    alert_info('warning' , '失败' , data.msg);
+                }
+            });
+            return false;
+        });
+    </script>
+</block>

@@ -14,7 +14,8 @@ class LoginController extends Controller{
      * 登陆
      */
     public function login(){
-        if(is_login()){
+//        if(is_login()){
+        /*if(true){
             $this->redirect('Index/index');
             return;
         }
@@ -26,7 +27,7 @@ class LoginController extends Controller{
         }
         if(empty($account) || empty($password)){
             return $this->json_response($this->error_arr['empty_data']);
-        }
+        }*/
     }
 
     //退出

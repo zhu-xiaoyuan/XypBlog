@@ -61,7 +61,7 @@ function do_post(data){
             L_alert(data.msg);
             $(".reloadverify").click();
         }else{*/
-            window.location.href = $('#index-url').val();
+    window.location.href = $('#index-url').val();
         //}
     //});
 }
