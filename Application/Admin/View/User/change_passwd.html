@@ -70,7 +70,7 @@
                 return false;
             }
             var data = {
-                pass:hex_md5(old_pw),
+                pass:old_pw,
                 new_pass:new_pw
             }
             $.post($(this).attr('action'),data,function(data){

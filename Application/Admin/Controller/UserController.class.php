@@ -93,7 +93,6 @@ class UserController extends BaseController{
     public function update_pass(){
         $old_pass = trim(I('pass'));
         $new_pass = trim(I('new_pass'));
-
         if(empty($old_pass) ||empty($new_pass)){
             return $this->json_response($this->error_arr['empty_pass']);
         }
@@ -102,12 +101,12 @@ class UserController extends BaseController{
             return;
         }
 
-        $result = M('user')->where(array('id' => session('id') , 'pass' => md5($old_pass)))->find();
+        $result = M('user')->where(array('id' => session('id') , 'password' => md5($old_pass)))->find();
         if(empty($result)){
             return $this->json_response($this->error_arr['pass_error']);
         }
 
-        $result = M('user')->where(array('id' => session('id')))->save(array('pass' => md5(md5($new_pass))));
+        $result = M('user')->where(array('id' => session('id')))->save(array('password' => md5($new_pass)));
 
         if($result === false){
             return $this->json_response($this->error_arr['unknown']);

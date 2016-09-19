@@ -23,8 +23,7 @@ class LoginController extends Controller{
         $this->display();
     }
     public function test(){
-        echo md5("123456");
-//        var_dump($user);
+        var_dump(session('id'));
     }
     /**
      * 登陆
