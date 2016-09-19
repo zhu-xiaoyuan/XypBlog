@@ -39,7 +39,7 @@ function filter(){
     }else if(null == pw || '' == pw){
         return '密码不能为空';
     }
-    pw = hex_md5(pw);
+    //pw = hex_md5(pw);
     return {
         verify : vy,
         account : ac,
@@ -56,14 +56,14 @@ function L_alert(msg){
     shake('#warning-msg');
 }
 function do_post(data){
-    /*$.post($('#login-url').val() ,data, function(data){
+    $.post($('#login-url').val() ,data, function(data){
         if(data.code != 0){
             L_alert(data.msg);
             $(".reloadverify").click();
-        }else{*/
-    window.location.href = $('#index-url').val();
-        //}
-    //});
+        }else{
+            window.location.href = $('#index-url').val();
+        }
+    });
 }
 function shake(o){
     var $panel = $(o);
