@@ -103,7 +103,7 @@ class UserController extends BaseController{
 
         $result = M('user')->where(array('id' => session('id') , 'password' => md5($old_pass)))->find();
         if(empty($result)){
-            return $this->json_response($this->error_arr['pass_error']);
+            return $this->json_response($this->error_arr['old_pass_error']);
         }
 
         $result = M('user')->where(array('id' => session('id')))->save(array('password' => md5($new_pass)));
