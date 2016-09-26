@@ -4,8 +4,8 @@ use Think\Controller;
 class BaseController extends Controller {
     public function __construct(){
         parent::__construct();
-       //if(!is_login()){
-        if(false){
+       if(!is_login()){
+        //if(false){
             $this->redirect('Admin/Login/index');
         }
 
