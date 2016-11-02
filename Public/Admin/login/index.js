@@ -1,6 +1,3 @@
-/**
- * Created by ling on 2016/4/25.
- */
 $(function(){
     $(document).on('keypress', function(e){
         if(e.keyCode == 13){

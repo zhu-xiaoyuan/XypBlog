@@ -93,8 +93,8 @@ class BaseController extends Controller {
                 ['name'=>'首页','url'=>U('Index/index'), 'ico'=>'glyphicon glyphicon-home'],
                 ['name'=>'文章管理','url'=>U('Article/index'), 'ico'=>'glyphicon glyphicon-edit'],
                 ['name'=>'相册管理','url'=>U('Photo/index'), 'ico'=>'glyphicon glyphicon-question-sign'],
-                /*['name'=>'我管辖的','url'=>U('Register/look_student_info'), 'ico'=>'glyphicon glyphicon-star'],
-                ['name'=>'分配学校','url'=>U('Register/assign_junior'), 'ico'=>'glyphicon glyphicon-refresh'],
+                ['name'=>'类别管理','url'=>U('Category/index'), 'ico'=>'glyphicon glyphicon-star'],
+                /*['name'=>'分配学校','url'=>U('Register/assign_junior'), 'ico'=>'glyphicon glyphicon-refresh'],
                 ['name'=>'机构信息','url'=>U('Org/orginfo'), 'ico'=>'glyphicon glyphicon-fire'],
                 ['name'=>'摇号信息','url'=>U('Enter/lot_orginfo'), 'ico'=>'glyphicon glyphicon-info-sign'],
                 ['name'=>'账号管理','ico'=>'glyphicon glyphicon-user', 'children' => [

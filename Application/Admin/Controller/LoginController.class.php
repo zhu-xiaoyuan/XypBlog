@@ -22,9 +22,6 @@ class LoginController extends Controller{
         }
         $this->display();
     }
-    public function test(){
-        var_dump(session('id'));
-    }
     /**
      * 登陆
      */
@@ -39,7 +36,7 @@ class LoginController extends Controller{
             return $this->json_response($this->error_arr['empty_data']);
         }
 
-        $user = M('user')->field('id, password,name')->where(array('account' => $account, 'status' => 0))->find();
+        $user = M('user')->field('id, password,name')->where(array('account' => $account))->find();
         if($user){
             if( $user['password'] == md5($password) ){
                 session('id', $user['id']);
