@@ -97,7 +97,7 @@
                             <select name="pid" id="pid" class="form-control">
                                 <option value="0">无</option>
                                 <foreach name="pcate" item="v" >
-                                    <option value="{$v['id']}">{$v['name']}</option>
+                                    <option value="{$v['id']}" <if condition="$data['pid'] == $v['id']">selected</if> >{$v['name']}</option>
                                 </foreach>
                             </select>
                         </div>
@@ -111,7 +111,7 @@
                         </div>
                         <div class="form_text form-group">
                             <label for="order" class="col-sm-1 control-label no-padding-right"><span class='must'></span>排序：</label>
-                            <input type="text" maxlength="20" class="form-control"  <if condition="data != ''"> value="{$data['order']}"</if> name="order" id="order">
+                            <input type="text" maxlength="20" class="form-control" placeholder="0" <if condition="data != ''"> value="{$data['order']}"</if> name="order" id="order">
                         </div>
 
                         <div class="form_text form-group">
@@ -131,7 +131,7 @@
                         </div>
 
                         <div class="form_text form-group">
-                            <a href="javascript:void(0);" data-url="{{ url('Admin/Category/addCate') }}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                            <a href="javascript:void(0);" data-url="{:U('Category/addCate')}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@
             }
             $.post(toUrl ,data, function(data){
                 if(data['code'] == 0){
-                    alert_info('success' , '提示' , data.msg);
+                    window.location = "{:U('Category/index')}";
                 }else{
                     alert_info('warning' , '提示' , data.msg);
                 }

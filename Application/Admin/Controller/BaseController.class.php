@@ -91,21 +91,13 @@ class BaseController extends Controller {
         $rank = session('rank');
             $nav = [
                 ['name'=>'首页','url'=>U('Index/index'), 'ico'=>'glyphicon glyphicon-home'],
-                ['name'=>'文章管理','url'=>U('Article/index'), 'ico'=>'glyphicon glyphicon-edit'],
-                ['name'=>'相册管理','url'=>U('Photo/index'), 'ico'=>'glyphicon glyphicon-question-sign'],
                 ['name'=>'类别管理','url'=>U('Category/index'), 'ico'=>'glyphicon glyphicon-star'],
-                /*['name'=>'分配学校','url'=>U('Register/assign_junior'), 'ico'=>'glyphicon glyphicon-refresh'],
-                ['name'=>'机构信息','url'=>U('Org/orginfo'), 'ico'=>'glyphicon glyphicon-fire'],
-                ['name'=>'摇号信息','url'=>U('Enter/lot_orginfo'), 'ico'=>'glyphicon glyphicon-info-sign'],
-                ['name'=>'账号管理','ico'=>'glyphicon glyphicon-user', 'children' => [
-                    ['name'=>'市教育局','url'=>U('Org/account?type=1')],
-                    ['name'=>'区教育局','url'=>U('Org/account?type=2')],
-                    ['name'=>'中学','url'=>U('Org/account?type=3')],
-                    ['name'=>'小学','url'=>U('Org/account?type=4')],
-                    ['name'=>'班主任','url'=>U('Org/account?type=5')],
-                ]],
-                ['name'=>'系统设置','url'=>U('Setting/index'), 'ico'=>'glyphicon glyphicon-cog'],
-                ['name'=>'完善信息','url'=>U('Org/perfectInfo'), 'ico'=>'glyphicon glyphicon-bookmark'],*/
+                ['name'=>'友情链接','url'=>U('Links/index'), 'ico'=>'glyphicon glyphicon-edit'],
+                ['name'=>'文章管理','url'=>U('Article/index'), 'ico'=>'glyphicon glyphicon-question-sign'],
+                ['name'=>'碎言碎语','url'=>U('Exper/index'), 'ico'=>'glyphicon glyphicon-user'],
+                ['name'=>'导航设置','url'=>U('Navs/index'), 'ico'=>'glyphicon glyphicon-info-sign'],
+                ['name'=>'个人信息','url'=>U('Introduce/index'), 'ico'=>'glyphicon glyphicon-fire'],
+//                ['name'=>'系统设置','url'=>U('Config/index'), 'ico'=>'glyphicon glyphicon-cog'],
             ];
         return $nav;
     }

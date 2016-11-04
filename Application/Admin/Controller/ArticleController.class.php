@@ -14,4 +14,9 @@ class ArticleController extends BaseController{
     public function index(){
         $this->display();
     }
+
+    public function edit()
+    {
+        $this->display();
+    }
 }
