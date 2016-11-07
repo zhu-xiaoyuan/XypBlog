@@ -79,27 +79,27 @@
                     <div class="widget-header bg-blue">
                         <span class="widget-caption">编辑友情链接</span>
                     </div>
-                    <input type="hidden" id="id" value="@if(!empty($data)) {{ $data->id }} @endif">
+                    <input type="hidden" id="id" <if condition="$data['id'] != ''"> value={$data['id']} </if>>
                     <div class="widget-body basis_info">
                         <div class="form_text form-group">
                             <label for="link_name" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>链接名称：</label>
-                            <input type="text" maxlength="20" class="form-control" value="@if(!empty($data)) {{ $data->link_name }} @endif" name="link_name" id="link_name">
+                            <input type="text" maxlength="20" class="form-control"  <if condition="$data['link_name'] != ''"> value={$data['link_name']} </if> name="link_name" id="link_name">
                         </div>
                         <div class="form_text form-group">
                             <label for="link_title" class="col-sm-1 control-label no-padding-right"><span class='must'></span>链接标题：</label>
-                            <input type="text" maxlength="20" class="form-control" value="@if(!empty($data)) {{ $data->link_title }} @endif" name="link_title" id="link_title">
+                            <input type="text" maxlength="20" class="form-control" <if condition="!empty($data)"> value={$data['link_title']} </if>  name="link_title" id="link_title">
                         </div>
                         <div class="form_text form-group">
                             <label for="link_url" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>链接地址：</label>
-                            <input type="text" class="form-control" value="@if(!empty($data)) {{ $data->link_url }} @endif" name="link_url" id="link_url">
+                            <input type="text" class="form-control" <if condition="!empty($data)"> value={$data['link_url']} </if> name="link_url" id="link_url">
                         </div>
                         <div class="form_text form-group">
                             <label for="link_order" class="col-sm-1 control-label no-padding-right"><span class='must'></span>排序：</label>
-                            <input type="text" maxlength="20" class="form-control" value="@if(!empty($data)) {{ $data->link_order }} @endif" name="link_order" id="link_order">
+                            <input type="text" maxlength="20" placeholder="0" class="form-control" <if condition="!empty($data)"> value={$data['link_order']} </if> name="link_order" id="link_order">
                         </div>
 
                         <div class="form_text form-group">
-                            <a href="javascript:void(0);" data-url="{{ url('Admin/Links/addLink') }}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                            <a href="javascript:void(0);" data-url="{:U('Links/addLink')}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
                         </div>
                     </div>
                 </div>
@@ -120,7 +120,8 @@
         var link_title = $.trim($('#link_title').val());
         var link_url = $.trim($('#link_url').val());
         var link_order = $.trim($('#link_order').val());
-        var token = $("input[name='_token']").val();
+        var r = /^\+?[0-9][0-9]*$/;　　//正整数
+
         if( link_name == ''){
             alert_info('warning' , '提示' , '链接名称不能为空!');
             return false;
@@ -129,13 +130,16 @@
             alert_info('warning' , '提示' , '链接地址不能为空!');
             return false;
         };
+        if(link_order != '' && !r.test(link_order)){
+            alert_info('warning' , '提示' , '排序字段为数字!');
+            return false;
+        }
         return {
             id:id,
             link_name:link_name,
             link_title:link_title,
             link_order:link_order,
-            link_url:link_url,
-            _token:token,
+            link_url:link_url
         };
     }
 
