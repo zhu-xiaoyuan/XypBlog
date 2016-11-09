@@ -80,22 +80,22 @@
                         <span class="widget-caption">编辑类别信息</span>
                     </div>
                     <div class="widget-body basis_info">
-                        <input type="hidden" id="id" value="@if(!empty($data)) {{ $data->id }} @endif">
-                        <div class="form_text form-group">
+                        <input type="hidden" id="id" <if condition="!empty($data)">value={$data['id']}</if>>
+                                <div class="form_text form-group">
                             <label for="nav_name" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>导航名称：</label>
-                            <input type="text" maxlength="20" class="form-control" value="@if(!empty($data)) {{ $data->nav_name }} @endif" name="nav_name" id="nav_name">
+                            <input type="text" maxlength="20" class="form-control" <if condition="!empty($data)">value={$data['nav_name']}</if> name="nav_name" id="nav_name">
                         </div>
                         <div class="form_text form-group">
                             <label for="nav_url" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>导航地址：</label>
-                            <input type="text" class="form-control" value="@if(!empty($data)) {{ $data->nav_url }} @endif" name="nav_url" id="nav_url">
+                            <input type="text" class="form-control" <if condition="!empty($data)">value={$data['nav_url']}</if> name="nav_url" id="nav_url">
                         </div>
                         <div class="form_text form-group">
                             <label for="nav_order" class="col-sm-1 control-label no-padding-right"><span class='must'></span>排序：</label>
-                            <input type="text" maxlength="20" class="form-control" value="@if(!empty($data)) {{ $data->nav_order }} @endif" name="nav_order" id="nav_order">
+                            <input type="text" maxlength="20" placeholder="0" class="form-control"  <if condition="!empty($data)">value={$data['nav_order']}</if> name="nav_order" id="nav_order">
                         </div>
 
                         <div class="form_text form-group">
-                            <a href="javascript:void(0);" data-url="{{ url('Admin/Navs/addNav" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                            <a href="javascript:void(0);"  class="add_apply btn btn-azure shiny" data-url="{:U('Navs/addNav')}" id="submit-btn">保存</a>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
         }
         $.post(toUrl ,data, function(data){
             if(data['code'] == 0){
-                window.location = "{{ url('Admin/Navs/index";
+                window.location = "{:U('Navs/index')}";
 //                alert_info('success' , '提示' , data.msg);
             }else{
                 alert_info('warning' , '提示' , data.msg);

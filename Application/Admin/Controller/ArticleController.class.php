@@ -12,6 +12,8 @@ class ArticleController extends BaseController{
      * 文章管理首页
      */
     public function index(){
+        $data = M('article')->select();
+        $this->assign('data',$data);
         $this->display();
     }
 

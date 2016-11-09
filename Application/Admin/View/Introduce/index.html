@@ -103,17 +103,17 @@
         <div class="widget-header bg-blue">
             <span class="widget-caption">个人信息</span>
         </div>
-        <input type="hidden" id="id" value="@if(!empty($data)) {{ $data->id }} @endif">
+        <input type="hidden" id="id" <if condition="!empty($data)"> value="{$data['id']}"</if>>
         <div class="widget-body basis_info">
             <div class="form_text form-group">
                 <label for="net_name" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>网名：</label>
-                <input type="text"  class="form-control" value="@if(!empty($data)) {{ $data->net_name }} @endif" name="title" id="net_name">
+                <input type="text"  class="form-control" <if condition="!empty($data)"> value="{$data['net_name']}"</if> name="title" id="net_name">
             </div>
             <div class="form_text form-group">
                 <script src="__PUBLIC__/static/uploadify/jquery.uploadify.min.js" type="text/javascript"></script>
                 <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/uploadify/uploadify.css">
                 <label for="portrait" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>头像：</label>
-                <input type="text" maxlength="25" class="form-control" value="@if(!empty($data) ) {{ $data->portrait }} @endif" name="portrait" id="portrait" style="width: 320px" disabled="disabled">
+                <input type="text" maxlength="25" class="form-control" <if condition="!empty($data)"> value="{$data['portrait']}"</if> name="portrait" id="portrait" style="width: 320px" disabled="disabled">
                 <input id="file_upload" name="file_upload" type="file" multiple="false">
             </div>
             <div class="form_text form-group">
@@ -122,19 +122,19 @@
             </div>
             <div class="form_text form-group">
                 <label for="occupation" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>职业：</label>
-                <input type="text" maxlength="16" class="form-control" value="@if(!empty($data) ) {{ $data->occupation }} @endif" name="author" id="occupation">
+                <input type="text" maxlength="16" class="form-control"  <if condition="!empty($data)"> value="{$data['occupation']}"</if> name="author" id="occupation">
             </div>
             <div class="form_text form-group">
                 <label for="origin" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>籍贯：</label>
-                <input type="text" maxlength="16" class="form-control" value="@if(!empty($data) ) {{ $data->origin }} @endif" name="author" id="origin">
+                <input type="text" maxlength="16" class="form-control" <if condition="!empty($data)"> value="{$data['origin']}"</if> name="author" id="origin">
             </div>
             <div class="form_text form-group">
                 <label for="QQ" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>QQ：</label>
-                <input type="text" maxlength="16" class="form-control" value="@if(!empty($data) ) {{ $data->qq }} @endif" name="author" id="QQ">
+                <input type="text" maxlength="16" class="form-control"<if condition="!empty($data)"> value="{$data['qq']}"</if> name="author" id="QQ">
             </div>
             <div class="form_text form-group">
                 <label for="mail" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>邮箱：</label>
-                <input type="text" class="form-control" value="@if(!empty($data) ) {{ $data->mail }} @endif" name="author" id="mail">
+                <input type="text" class="form-control" <if condition="!empty($data)"> value="{$data['mail']}"</if> name="author" id="mail">
             </div>
 
             <label for="introduction" data=""style="position: relative;left: -682px;top: 30px;"><span class='must'>*</span>个人介绍：</label>
@@ -143,7 +143,7 @@
             </div>
 
             <div class="form_text form-group">
-                <a href="javascript:void(0);" data-url="{{ url('Admin/Introduce/addIntroduce" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                <a href="javascript:void(0);" data-url="{:U('Introduce/addIntroduce')} class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
             </div>
         </div>
     </div>

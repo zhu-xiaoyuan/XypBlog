@@ -78,28 +78,26 @@
                         </thead>
 
                         <tbody>
-                           @foreach($data as $v)
-                               <tr>
-                                   <td style="width: 5%">{{ $v->id }}</td>
-                                   <td style="width: 10%">{{ $v->title }}</td>
-                                   <td>{{ $v->author }}</td>
-                                   <td>{{ $v->keywords }}</td>
-                                   <td>{{ $v->order }}</td>
-                                   <td>
-                                       @if ( $v->status == 0)
-                                           <a href="javascript:void(0);" class="btn-success btn-sm">发布</a>
-                                       @elseif ($v->status == 1)
-                                           <a href="javascript:void(0);" class="btn-primary btn-sm">草稿</a>
-                                       @else
-                                           <a href="javascript:void(0);" class="btn-danger btn-sm">删除</a>
-                                       @endif
-                                   </td>
-                                   <td>
-                                       <a href="{{ url('Admin/Article/edit',$v->id) }}" class="btn btn-info btn-xs"><i class="fa fa-edit"></i>编辑</a>
-                                       <a href="#" class="btn btn-danger btn-xs delete" data-id="{{ $v->id }}"><i class="fa fa-trash-o"></i>删除</a>
-                                   </td>
-                               </tr>
-                           @endforeach
+                            <foreach name="data" item="v" >
+                                <tr>
+                                    <td style="width: 5%">{$v['id']}</td>
+                                    <td style="width: 10%">{$v['title']}</td>
+                                    <td>{$v['author']}</td>
+                                    <td>{$v['keywords']}</td>
+                                    <td>{$v['order']}</td>
+                                    <td>
+                                        <if condition="$v['status'] == 0">
+                                            <a href="javascript:void(0);" class="btn-success btn-sm">发布</a>
+                                            <else />
+                                            <a href="javascript:void(0);" class="btn-primary btn-sm">草稿</a>
+                                        </if>
+                                    </td>
+                                    <td>
+                                        <a href="{:U('Article/edit',['id'=>$v['id']])}" class="btn btn-info btn-xs"><i class="fa fa-edit"></i>编辑</a>
+                                        <a href="#" class="btn btn-danger btn-xs delete" data-id="{$v['id']}"><i class="fa fa-trash-o"></i>删除</a>
+                                    </td>
+                                </tr>
+                            </foreach>
                         </tbody>
                     </table>
                 </div>

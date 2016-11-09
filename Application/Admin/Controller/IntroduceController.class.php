@@ -13,6 +13,8 @@ class IntroduceController extends BaseController{
      */
 
     public function index(){
+        $data = M('introduce')->find();
+        $this->assign('data',$data);
         $this->display();
     }
 

@@ -100,21 +100,22 @@
             <span class="widget-caption">编辑碎言</span>
         </div>
         <div class="widget-body basis_info col-xs-10 col-md-10">
-            <input type="hidden" name="id" value="@if(!empty($data) ) {{ $data->id }} @endif" id="id">
+            <input type="hidden" name="id" <if condition="!empty($data)">value="{ $data['id']}"</if>  id="id">
             <div class="form_text form-group">
                 <label for="title" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>标题：</label>
-                <input type="text"  class="form-control" value="@if(!empty($data) ) {{ $data->title }} @endif" name="title" id="title">
+                <input type="text"  class="form-control" <if condition="!empty($data)">value="{$data['title']}"</if>name="title" id="title">
             </div>
             <div class="form_text form-group">
                 <label for="author" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>时间：</label>
-                <input id="time" class="form-control" type="date" value="@if(!empty($data)){{date('Y-m-d', $data->time)}}@else{{date('Y-m-d',time())}}@endif"/>
+                <?php $time = time();?>
+                <input id="time" class="form-control" type="date" <if condition="!empty($data)">value="{$data['time']|date='Y-m-d',###}"<else/>value="{$time|date='Y-m-d',###}"</if>/>
             </div>
             <div class="form_text form-group">
                 <label for="content" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>内容：</label>
-                <textarea type="text"class="form-control" name="describe" id="content" rows="8" style="resize:none;line-height: 16px">@if(!empty($data)){{ $data->content }}@endif</textarea>
+                <textarea type="text"class="form-control" name="describe" id="content" rows="8" style="resize:none;line-height: 16px"><if condition="!empty($data)">{$data['content']}</if></textarea>
             </div>
             <div class="form_text form-group">
-                <a href="javascript:void(0);" data-url="{{ url('Admin/Exper/addExper') }}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                <a href="javascript:void(0);" data-url="{:U('Exper/edit')}" url="" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
             </div>
         </div>
     </div>
@@ -157,7 +158,7 @@
             }
             $.post(toUrl ,data, function(data){
                 if(data['code'] == 0){
-                    window.location = "{{ url('Admin/Exper/index') }}";
+                    window.location = "{:U('Exper/index')}";
                 }else{
                     alert_info('warning' , '提示' , data.msg);
                 }
