@@ -9,7 +9,7 @@ namespace Admin\Controller;
 class ExperController extends BaseController{
 
     /**
-     * 友情链接首页
+     * 碎言碎语首页
      */
 
     public function index(){
@@ -19,7 +19,7 @@ class ExperController extends BaseController{
     }
 
     /**
-     * 添加友情链接
+     * 添加碎言碎语
      */
 
     public function edit(){
@@ -61,6 +61,9 @@ class ExperController extends BaseController{
         }
     }
 
+    /**
+     * 删除碎言碎语
+     */
     public function delExper()
     {
         $id = trim(I('post.id'));

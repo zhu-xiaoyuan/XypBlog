@@ -57,7 +57,7 @@ class LinksController extends BaseController{
         }
 
     }
-
+    //删除友情链接
     public function dellink()
     {
         $id = trim(I('post.id'));

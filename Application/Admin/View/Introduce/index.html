@@ -1,6 +1,5 @@
 <extend name="Base:base"/>
 <block name="css_link">
-    <script src="__PUBLIC__/static/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/static/ueditor/ueditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/static/ueditor/ueditor.all.min.js"> </script>
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/static/ueditor/lang/zh-cn/zh-cn.js"></script>
@@ -118,7 +117,7 @@
             </div>
             <div class="form_text form-group">
                 <label class="col-sm-1 control-label no-padding-right"><span class='must'></span>预览：</label>
-                <img src="@if(!empty($data) ) {{ '/'.$data->portrait }} @endif" alt="" style="max-width:458px;max-height: 458px" id="preview">
+                <img  src="{$data['portrait']}" alt="" style="max-width:458px;max-height: 458px" id="preview">
             </div>
             <div class="form_text form-group">
                 <label for="occupation" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>职业：</label>
@@ -143,7 +142,7 @@
             </div>
 
             <div class="form_text form-group">
-                <a href="javascript:void(0);" data-url="{:U('Introduce/addIntroduce')} class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
+                <a href="javascript:void(0);" data-url="{:U('Introduce/addIntroduce')}" class="add_apply btn btn-azure shiny" id="submit-btn">保存</a>
             </div>
         </div>
     </div>
@@ -158,9 +157,7 @@
             autoFloatEnabled: true
         });
         ue.ready(function(){
-        /*    @if(!empty($data))
-            ue.setContent('{!! $data->introduction !!}');
-            @endif*/
+            ue.setContent("{$data['introduction']}");
         });
         function filter(){
             var id = $.trim($('#id').val());
@@ -205,7 +202,7 @@
                 net_name:net_name,
                 occupation:occupation,
                 origin:origin,
-                QQ:QQ,
+                qq:QQ,
                 mail:mail,
                 introduction:introduction,
                 _token:token,
@@ -217,14 +214,16 @@
             $('#file_upload').uploadify({
                 'buttonText':'图片上传',
                 'formData'     : {
-                    'timestamp' : '<?php echo $timestamp;?>',
-                    '_token'     : "{{ csrf_token() }}"
+                    'timestamp' : '<?php echo $timestamp;?>'
                 },
                 'swf'      : "__PUBLIC__/static/uploadify/uploadify.swf",
-                'uploader' : "{{ url('Admin/Common/upload')}}",
-                'onUploadSuccess' : function(file, data, response) {
-                    $('#portrait').val(data);
-                    $('#preview').attr('src','/'+data);
+                'uploader' : "{:U('Common/upload')}",
+                'onUploadSuccess' : function(file, data, response){
+                    var obj = $.parseJSON(data);
+                    var str = obj['data'].replace(".","");
+                    str = "/Uploads" + str;
+                    $('#portrait').val(str);
+                    $('#preview').attr('src',str);
                 },
                 'multi'    : false,
             });
