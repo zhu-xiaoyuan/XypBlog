@@ -87,7 +87,7 @@
                         </div>
                         <div class="form_text form-group">
                             <label for="link_title" class="col-sm-1 control-label no-padding-right"><span class='must'></span>链接标题：</label>
-                            <input type="text" maxlength="20" class="form-control" <if condition="!empty($data)"> value={$data['link_title']} </if>  name="link_title" id="link_title">
+                            <input type="text" maxlength="20" class="form-control" <if condition="!empty($data['link_title'])"> value={$data['link_title']} </if>  name="link_title" id="link_title">
                         </div>
                         <div class="form_text form-group">
                             <label for="link_url" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>链接地址：</label>
@@ -121,13 +121,17 @@
         var link_url = $.trim($('#link_url').val());
         var link_order = $.trim($('#link_order').val());
         var r = /^\+?[0-9][0-9]*$/;　　//正整数
-
+        var u = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/;
         if( link_name == ''){
             alert_info('warning' , '提示' , '链接名称不能为空!');
             return false;
         };
-        if( link_url == ''){
+        if(link_url == ''){
             alert_info('warning' , '提示' , '链接地址不能为空!');
+            return false;
+        };
+        if(!u.test(link_url)){
+            alert_info('warning' , '提示' , '链接格式不正确!');
             return false;
         };
         if(link_order != '' && !r.test(link_order)){

@@ -77,7 +77,7 @@ if(!IS_CLI) {
     // 当前文件名
     if(!defined('_PHP_FILE_')) {
         if(IS_CGI) {
-            //CGI/FASTCGI模式下
+            // CGI/FASTCGI模式下
             $_temp  = explode('.php',$_SERVER['PHP_SELF']);
             define('_PHP_FILE_',    rtrim(str_replace($_SERVER['HTTP_HOST'],'',$_temp[0].'.php'),'/'));
         }else {

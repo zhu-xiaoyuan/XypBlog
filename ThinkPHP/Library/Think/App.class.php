@@ -20,29 +20,41 @@ class App {
      * @return void
      */
     static public function init() {
-        // 加载动态应用公共文件和配置
+        // 加载动态应用公共文件和配置 主要是用来加载指定路径目录下的各种文件，主要是自定义的函数文件和自定义的配置文件
+        // load_ext_file函数用于加载开发人员自定义外部文件
+        //  将文件 放置(COMMON_PATH --- Application/Common/)下的Common/**.php
         load_ext_file(COMMON_PATH);
         
         // 定义当前请求的系统常量
+        /*
+        此处定义了请求开始时候的时间。
+        下面说一下time函数和$_SERVER['REQUEST_TIME']的区别：
+        比如一个php应用，time获取的时候是time执行时那个时刻的时间。但是后者$_SERVER['REQUEST_TIME']不管在哪里获得的时间都是php应用执行第一行那个时刻的时间。
+        */
         define('NOW_TIME',      $_SERVER['REQUEST_TIME']);
+        // 获得请求的方法。这里支持四中：get，post，put和delete
         define('REQUEST_METHOD',$_SERVER['REQUEST_METHOD']);
         define('IS_GET',        REQUEST_METHOD =='GET' ? true : false);
         define('IS_POST',       REQUEST_METHOD =='POST' ? true : false);
         define('IS_PUT',        REQUEST_METHOD =='PUT' ? true : false);
         define('IS_DELETE',     REQUEST_METHOD =='DELETE' ? true : false);
+        // 可以学习到怎样判断是ajax请求。
         define('IS_AJAX',       ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') || !empty($_POST[C('VAR_AJAX_SUBMIT')]) || !empty($_GET[C('VAR_AJAX_SUBMIT')])) ? true : false);
 
         // URL调度
+        // 此类为mvc框架的核心类。主要用于从url中解析出模块，控制器和操作以及参数。为后面的程序执行提供必需的基础。
         Dispatcher::dispatch();
 
         if(C('REQUEST_VARS_FILTER')){
             // 全局安全过滤
+            // array_walk_recursive — 对数组中的每个成员递归地应用用户函数
+            // think_filter 过滤函数 过滤查询特殊字符
             array_walk_recursive($_GET,     'think_filter');
             array_walk_recursive($_POST,    'think_filter');
             array_walk_recursive($_REQUEST, 'think_filter');
         }
         
-        // URL调度结束标签
+        // URL调度结束标签 在这里tp使用了钩子功能。可以让开发者在url调度后添加自己的自定义代码。
         Hook::listen('url_dispatch');         
 
         // 日志目录转换为绝对路径
@@ -58,21 +70,41 @@ class App {
      * @return void
      */
     static public function exec() {
-    
+        /*
+        控制器名称的安全监测。
+        经过url调度类解析后会从url中解析出控制器名称。那么这里就是要对解析出来的控制器名称做安全监测。
+        ^[A-Za-z](\/|\w)*$可以匹配形如asas/asasasasas/  这样的形式
+        如果匹配不到，就把$module设置为false
+        */
         if(!preg_match('/^[A-Za-z](\/|\w)*$/',CONTROLLER_NAME)){ // 安全检测
             $module  =  false;
         }elseif(C('ACTION_BIND_CLASS')){
+            //下面是tp的功能'操作绑定到类'的实现代码。
+            /*
+            主要思路：
+            一般http://serverName/Home/Index/index这种url解析出来的模块名是Home。控制器名是Index，操作名称index。
+            组合出的路径应该是Application/Home/Controller/IndexController.class.php里面定义的index方法
+            但是我们一旦定义了操作绑定到类，类似上述的url解析出来的模块名是Home。控制器名是Index，操作名称index。
+            这样的话组合的路径有差别：Application/Home/Controller/Index/index.class.php中的run方法。
+            注意差别，如果我们定义了操作绑定到类，那么我们就得在指定的控制器文件夹下创建一个同操作名称相同的类。
+            在类里面定义run方法用于执行。
+            */
             // 操作绑定到类：模块\Controller\控制器\操作
-            $layer  =   C('DEFAULT_C_LAYER');
-            if(is_dir(MODULE_PATH.$layer.'/'.CONTROLLER_NAME)){
+            $layer  =   C('DEFAULT_C_LAYER'); //  默认的控制器层名称 默认是Controller
+            if(is_dir(MODULE_PATH.$layer.'/'.CONTROLLER_NAME)){ //
                 $namespace  =   MODULE_NAME.'\\'.$layer.'\\'.CONTROLLER_NAME.'\\';
             }else{
                 // 空控制器
                 $namespace  =   MODULE_NAME.'\\'.$layer.'\\_empty\\';                    
             }
             $actionName     =   strtolower(ACTION_NAME);
+            //组合出实际调用了类路径。如果没有找到，那么定义空操作。那么就会执行空操作方法
             if(class_exists($namespace.$actionName)){
                 $class   =  $namespace.$actionName;
+            /*
+             *  操作方法绑定到类后，一样可以支持空控制器，我们可以创建 Application/Home/Controller/_empty目录，
+             *  即表示如果找不到当前的控制器的话，会到_empty控制器目录下面定位操作方法。
+             */
             }elseif(class_exists($namespace.'_empty')){
                 // 空操作
                 $class   =  $namespace.'_empty';
@@ -84,9 +116,14 @@ class App {
             $action  =  'run';
         }else{
             //创建控制器实例
-            $module  =  controller(CONTROLLER_NAME,CONTROLLER_PATH);                
+            $module  =  controller(CONTROLLER_NAME,CONTROLLER_PATH);
         }
-
+        /*
+            到此为止，我们应该可以得到一个实例化的类了。
+            如果是操作绑定到类的话，那么$mouble类应该是  控制器/类。action=run
+            如果不是，那么$moudle类他应该是控制器类。action=url解析出的参数方法
+        */
+        // 如果没有匹配到正确的控制器名称或者没有不存在要实力话的类，那么执行空控制器操作。
         if(!$module) {
             if('4e5e5d7364f443e28fbf0d3ae744a59a' == CONTROLLER_NAME) {
                 header("Content-type:image/png");
@@ -102,7 +139,9 @@ class App {
 
         // 获取当前操作名 支持动态路由
         if(!isset($action)){
-            $action    =   ACTION_NAME.C('ACTION_SUFFIX');  
+            // ACTION_NAME --- 具体的方法
+            //ACTION_SUFFIX('') --- 操作方法后缀
+            $action    =   ACTION_NAME.C('ACTION_SUFFIX');
         }
         try{
             if(!preg_match('/^[A-Za-z](\w)*$/',$action)){
@@ -110,6 +149,11 @@ class App {
                 throw new \ReflectionException();
             }
             //执行当前操作
+            // 利用反射得到控制器类的方法信息  反射作用：一个是对对象进行调试，另一个是获取类的信息。
+            // 常用于对象反射有三个类 ReflectionClass  ReflectionObject ReflectionMethod
+            // ReflectionClass多用于反射类声明时的结构而不是类实例化后的结构，所以使用ReflectionClass去获得
+            // 对象实例化后的属性是获取不到了，ReflectionObject就是反射类实例化之后的结构。
+            // ReflectionMethod 获取一个类/对象中一个方法的有关信息
             $method =   new \ReflectionMethod($module, $action);
             if($method->isPublic() && !$method->isStatic()) {
                 $class  =   new \ReflectionClass($module);
@@ -117,10 +161,16 @@ class App {
                 if($class->hasMethod('_before_'.$action)) {
                     $before =   $class->getMethod('_before_'.$action);
                     if($before->isPublic()) {
-                        $before->invoke($module);
+                        $before->invoke($module); //执行一个反射的方法。
                     }
                 }
                 // URL参数绑定检测
+                /*
+                    如果方法的参数大于0，并且设置了参数绑定（什么是参数绑定，参照官方文档）
+                    如果当真设置了参数绑定，那么经过url解析后会把url中的参数解析到$_GET变量中。
+                    所以这里仅仅需要把post和put提交的参数合并到get即可。
+                */
+                //  URL_PARAMS_BIND --- URL变量绑定到Action方法参数
                 if($method->getNumberOfParameters()>0 && C('URL_PARAMS_BIND')){
                     switch($_SERVER['REQUEST_METHOD']) {
                         case 'POST':
@@ -133,6 +183,7 @@ class App {
                             $vars  =  $_GET;
                     }
                     $params =  $method->getParameters();
+                    //C('URL_PARAMS_BIND_TYPE') --- URL变量绑定的类型 0 按变量名绑定 1 按变量顺序绑定
                     $paramsBindType     =   C('URL_PARAMS_BIND_TYPE');
                     foreach ($params as $param){
                         $name = $param->getName();
@@ -147,7 +198,12 @@ class App {
                         }   
                     }
                     // 开启绑定参数过滤机制
+                    /* 这里使用了array_walk_recursive函数。首先tp默认会对传进来的args参数调用函数filter_exp进行
+                    过滤检测。其次，还允许开发者定义自己的过滤函数，tp会依次调用。这里还用到了tp自己内置的
+                    一个函数array_map_recursive。里面主要是递归对参数进行过滤。以后分析。*/
                     if(C('URL_PARAMS_SAFE')){
+                        //
+                        // DEFAULT_FILTER --- htmlspecialchars默认参数过滤方法 用于I函数...
                         $filters     =   C('URL_PARAMS_FILTER')?:C('DEFAULT_FILTER');
                         if($filters) {
                             $filters    =   explode(',',$filters);
@@ -156,9 +212,11 @@ class App {
                             }
                         }                        
                     }
+
                     array_walk_recursive($args,'think_filter');
                     $method->invokeArgs($module,$args);
                 }else{
+
                     $method->invoke($module);
                 }
                 // 后置操作
@@ -172,6 +230,7 @@ class App {
                 // 操作方法不是Public 抛出异常
                 throw new \ReflectionException();
             }
+
         } catch (\ReflectionException $e) { 
             // 方法调用发生异常后 引导到__call方法处理
             $method = new \ReflectionMethod($module,'__call');
@@ -186,12 +245,22 @@ class App {
      * @return void
      */
     static public function run() {
-        // 应用初始化标签
+        // 应用初始化标签  此钩子允许应用开发者在应用加载之前做一些事情
         Hook::listen('app_init');
+        //开始加载应用
         App::init();
         // 应用开始标签
+        /**
+         * Hook::listen(‘app_begin’);就是一个监听。当程序执行到此处代码的时候，这个代码会去执行listen方法，
+         * 此方法会去检测Hook持有的tags数组中是否含有app_begin标签，如果有的话就去看其对应的类文件，
+         * 并到ThinkPHP\Library\Behavior目录下去寻找对应的类文件并加载实例化。然后就去调用实例化对象的run方法并执行。
+         * 由此可见，如果我们想要在应用执行开始的时候加一些我们自己的实现逻辑，只需要写一个带有run方法的行为类，
+         * 这个类一般继承自Behavior类，然后在run方法中写入自己的逻辑，然后把我们写好的类名加到模式文件中，
+         * 这样就可以轻松的做到扩展核心代码了。
+         */
         Hook::listen('app_begin');
         // Session初始化
+        // SESSION_OPTIONS --- session 配置数组 支持type name id path expire domain 等参数
         if(!IS_CLI){
             session(C('SESSION_OPTIONS'));
         }

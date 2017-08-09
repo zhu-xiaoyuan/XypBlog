@@ -12,6 +12,7 @@ class LoginController extends Controller{
         'organ_error' =>['code' => 0xC051, 'msg' => '没有此账号对应的机构'],
     ] ;
 
+
     /**
      * 登陆首页
      */

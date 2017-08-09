@@ -22,7 +22,6 @@ class BaseController extends Controller {
             }
             $this->assign("nav", $nav);
         }
-
         //加载 setting表中的配置
 //        $this->config = $this->get_config();
     }
@@ -93,8 +92,8 @@ class BaseController extends Controller {
                 ['name'=>'首页','url'=>U('Index/index'), 'ico'=>'glyphicon glyphicon-home'],
                 ['name'=>'类别管理','url'=>U('Category/index'), 'ico'=>'glyphicon glyphicon-star'],
                 ['name'=>'友情链接','url'=>U('Links/index'), 'ico'=>'glyphicon glyphicon-edit'],
-                ['name'=>'文章管理','url'=>U('Article/index'), 'ico'=>'glyphicon glyphicon-question-sign'],
-                ['name'=>'碎言碎语','url'=>U('Exper/index'), 'ico'=>'glyphicon glyphicon-user'],
+                ['name'=>'图书管理','url'=>U('Article/index'), 'ico'=>'glyphicon glyphicon-question-sign'],
+                ['name'=>'新闻公告','url'=>U('Exper/index'), 'ico'=>'glyphicon glyphicon-user'],
                 ['name'=>'导航设置','url'=>U('Navs/index'), 'ico'=>'glyphicon glyphicon-info-sign'],
                 ['name'=>'个人信息','url'=>U('Introduce/index'), 'ico'=>'glyphicon glyphicon-fire'],
 //                ['name'=>'系统设置','url'=>U('Config/index'), 'ico'=>'glyphicon glyphicon-cog'],

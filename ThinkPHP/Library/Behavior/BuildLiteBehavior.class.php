@@ -14,6 +14,7 @@ namespace Behavior;
 // 建议绑定位置app_init
 class BuildLiteBehavior {
     public function run(&$params) {
+
         if(!defined('BUILD_LITE_FILE')) return ;
         $litefile   =   C('RUNTIME_LITE_FILE',null,RUNTIME_PATH.'lite.php');
         if(is_file($litefile)) return;

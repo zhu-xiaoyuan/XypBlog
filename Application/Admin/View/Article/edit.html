@@ -100,12 +100,12 @@
 <block name="main">
     <div class="row">
             <div class="widget-header bg-blue">
-                <span class="widget-caption">编辑文章</span>
+                <span class="widget-caption">编辑图书</span>
             </div>
             <div class="widget-body basis_info">
                 <input type="hidden" name="id" <if condition="!empty($data)">value="{$data['id']}"</if> id="id">
                 <div class="form_text form-group">
-                    <label for="title" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>文章标题：</label>
+                    <label for="title" class="col-sm-1 control-label no-padding-right"><span class='must'>*</span>图书名称：</label>
                     <input type="text"  class="form-control" <if condition="!empty($data)">value="{$data['title']}"</if> name="title" id="title">
                 </div>
                 <div class="form_text form-group">
@@ -113,23 +113,23 @@
                     <input type="text" maxlength="16" class="form-control" <if condition="!empty($data)">value="{$data['author']}"</if> name="author" id="author">
                 </div>
                 <div class="form_text form-group">
-                    <label for="cate_id" class="col-sm-1 control-label no-padding-right"><span class='must'></span>文章分类：</label>
+                    <label for="cate_id" class="col-sm-1 control-label no-padding-right"><span class='must'></span>图书分类：</label>
                     <select name="cate_id" id="cate_id" class="form-control">
                         <option value="0">无</option>
-                        @foreach($allData as $v)
-                            <option value="{{ $v->id }}" @if(!empty($data) && $v->id == $data->cate_id) selected @endif>{{ $v->name }}</option>
-                        @endforeach
+                        <foreach name="catedata" item="vo" >
+                            <option value="{$vo['id']}" <if condition="!empty($data) && $vo['id'] == $data['cate_id']">selected </if>>{$vo['name']}</option>
+                        </foreach>
                     </select>
                 </div>
                 <div class="form_text form-group">
                     <script src="__PUBLIC__/static/uploadify/jquery.uploadify.min.js" type="text/javascript"></script>
                     <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/uploadify/uploadify.css">
-                    <label for="thumb_img" class="col-sm-1 control-label no-padding-right"><span class='must'></span>文章配图：</label>
+                    <label for="thumb_img" class="col-sm-1 control-label no-padding-right"><span class='must'></span>图书配图：</label>
                     <input type="text" maxlength="25" class="form-control" <if condition="!empty($data)">value="{$data['thumb_img']}"</if> name="thumb_img" id="thumb_img" style="width: 320px" disabled="disabled">
                     <input id="file_upload" name="file_upload" type="file" multiple="false">
                 </div>
                 <div class="form_text form-group">
-                    <label class="col-sm-1 control-label no-padding-right"><span class='must'></span>预览：</label>
+                    <label class="col-sm-1 control-label no-padding-right"><span class='must'></span>配图预览：</label>
                     <img src="{$data['thumb_img']}" alt="" style="max-width:458px;max-height: 458px" id="preview">
                 </div>
                 <div class="form_text form-group">
@@ -143,20 +143,20 @@
                     <textarea type="text"class="form-control" name="describe" id="describe" rows="5" style="resize:none;line-height: 16px">{$data['describe']}</textarea>
                 </div>
 
-                <label for="status" data=""style="position: relative;left: -682px;top: 30px;"><span class='must'></span>文章内容：</label>
+                <label for="status" data=""style="position: relative;left: -682px;top: 30px;"><span class='must'></span>图书详情：</label>
                 <div style="position: relative;left:205px;">
                     <script id="editor" type="text/plain" style="width:750px;height:400px;"></script>
                 </div>
 
                 <div class="form_text form-group" style="margin-top: 10px">
-                    <label for="order" class="col-sm-1 control-label no-padding-right"><span class='must'></span>排序：</label>
+                    <label for="order" class="col-sm-1 control-label no-padding-right"><span class='must'></span>库存：</label>
                     <input type="text" maxlength="20" class="form-control" <if condition="!empty($data)">value="{$data['order']}"</if> name="order" id="order" placeholder="0">
                 </div>
                 <div class="form_text form-group">
-                    <label for="status" class="col-sm-1 control-label no-padding-right"><span class='must'></span>保存状态：</label>
+                    <label for="status" class="col-sm-1 control-label no-padding-right"><span class='must'></span>图书状态：</label>
                     <select name="status" id="status" class="form-control">
-                        <option value="0" <if condition="$data['status'] == 0">selected</if>>发布</option>
-                        <option value="1"  <if condition="$data['status'] == 1">selected</if>>草稿</option>
+                        <option value="0" <if condition="$data['status'] == 0">selected</if>>上架</option>
+                        <option value="1"  <if condition="$data['status'] == 1">selected</if>>下架</option>
                     </select>
                 </div>
                 <div class="form_text form-group">

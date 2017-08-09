@@ -20,14 +20,20 @@ class ArticleController extends BaseController{
     /**
      * 文章编辑
      */
+
     public function edit()
     {
         if(IS_GET){
             $id = I('get.id');
+
+            $catedata = M('category')->where(array('status'=>0))->select();
+            $this->assign('catedata',$catedata);
             if($id){
                 $data = M('article')->where(array('id'=>$id))->find();
+
                 $data["content"] = htmlspecialchars_decode($data["content"]);
                 $this->assign('data',$data);
+
             }
             $this->display();
         }else{

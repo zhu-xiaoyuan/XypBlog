@@ -64,6 +64,11 @@ class View {
      * @param string $prefix 模板缓存前缀
      * @return mixed
      */
+    /*
+        dispaly方法接受一个templateFile参数，调用parseTemplate方法根据这个参数去侦测模板文件的位置，
+        结合主题组合出一个模板的地址，执行view_parse标签行为，在行为类里面去调用模板引擎的fetch方法去解析模板，
+        返回编译后的内容。
+     */
     public function display($templateFile='',$charset='',$contentType='',$content='',$prefix='') {
         G('viewStartTime');
         // 视图开始标签
@@ -103,6 +108,11 @@ class View {
      * @param string $prefix 模板缓存前缀
      * @return string
      */
+    /* 我们已经根据用户传入的模板地址表达式得到了模板文件地址，接下来就是调用模板引擎来解析这个模板。
+     * 在view类的fetch方法中并没有直接调用模板引擎template类的的方法去解析模板，而是去调用了一个view_parse标签，
+     * 在这个标签上绑定了行为模式扩展类ParseTemplateBehavior，模板的解析就是在这个类的run方法中进行的，
+     * 这个类总我们不仅而已使用tp自带的模板引擎，还可以使用其他开源第三方的模板引擎类，具有很好的高扩展性。
+     */
     public function fetch($templateFile='',$content='',$prefix='') {
         if(empty($content)) {
             $templateFile   =   $this->parseTemplate($templateFile);
@@ -138,14 +148,30 @@ class View {
      * @return string
      */
     public function parseTemplate($template='') {
+        //如果$template是一个文件地址的话，那么就直接返回该地址。这是最简单的一种使用方式。
+        //这里的文件地址是一个相对文件路径地址，要注意模板文件位置是相对于项目的入口文件
         if(is_file($template)) {
             return $template;
         }
+
+        //获取模板文件的分隔符，模板文件CONTROLLER_NAME与ACTION_NAME之间的分割符
         $depr       =   C('TMPL_FILE_DEPR');
+        //将冒号替换成分隔符
         $template   =   str_replace(':', $depr, $template);
         // 获取当前主题名称
         $theme = $this->getTemplateTheme();
 
+        /*我们来看一下tp的模板侦测逻辑。首先tp要求我们传入一个地址表达式。格式如下：
+        [模块@][控制器:][操作]  比如：  m@c:a  表示m模块下的c控制器下的a方法
+        我们只要给此方法传入模块，控制器和方法三个参数，这个方法就能给我们侦测出对应的模板文件地址。
+        具体来说，他会先定义出截止到模块这个阶段的目录，然后在得到控制器到最后的模板文件地址，
+        最后组合起来形成最终的文件地址。1：先定义模块的目录
+        首先解析地址表达式，如果有@，表示传入了模块地址，解析她，赋值给module变量。我们的控制器文件夹和方法存放在哪里呢？
+        如果定义了视图目录，就存放在视图目录中，如果没有定义，就看看是否定义了模板路径，
+        如果定义了就存放在该路径下的对应模块目录下，如果没有定义模板路径，
+        默认就存放在应用文件夹下的对应模块文件夹下的默认视图层下。
+        最后我们会得到一个THEME_PATH表示控制器模板存放的目录。如果有主题的话加上主题
+*/
         // 获取当前模块
         $module   =  MODULE_NAME;
         if(strpos($template,'@')){ // 跨模块调用模版文件
@@ -162,6 +188,10 @@ class View {
         }
 
         // 分析模板文件规则
+        /*
+        然后分析地址表达式中的模板规则，如果地址表达式为空，或者只是传了一个模块名，
+        那么这里的template就为空，那么默认的地址就是默认控制器下的默认方法
+        */
         if('' == $template) {
             // 如果模板文件名为空 按照默认规则定位
             $template = CONTROLLER_NAME . $depr . ACTION_NAME;

@@ -18,27 +18,32 @@ abstract class Controller {
      * 视图实例对象
      * @var view
      * @access protected
-     */    
-    protected $view     =  null;
+     */
+    //内部保存视图类view的对象实例，在构造方法中为其赋值，在后面的方法中使用。
+    protected $view = null;
 
     /**
      * 控制器参数
      * @var config
      * @access protected
-     */      
-    protected $config   =   array();
+     */
+    protected $config = array();
 
-   /**
+    /**
      * 架构函数 取得模板对象实例
      * @access public
      */
     public function __construct() {
         Hook::listen('action_begin',$this->config);
         //实例化视图类
-        $this->view     = Think::instance('Think\View');
+        $this->view = Think::instance('Think\View');
+
         //控制器初始化
+        // 在子可以使用 _initialize 进行初始化操作。
+        // 这是在类的外部进行调用，所以_initialize方法需要用public声明。
         if(method_exists($this,'_initialize'))
             $this->_initialize();
+
     }
 
     /**
@@ -52,6 +57,7 @@ abstract class Controller {
      * @param string $prefix 模板缓存前缀
      * @return void
      */
+    // 控制器基类中$this->display()方法实际调用的是view类中的display()方法。
     protected function display($templateFile='',$charset='',$contentType='',$content='',$prefix='') {
         $this->view->display($templateFile,$charset,$contentType,$content,$prefix);
     }
@@ -65,18 +71,19 @@ abstract class Controller {
      * @param string $prefix 模板缓存前缀
      * @return mixed
      */
+    // 同样调用view的display方法
     protected function show($content,$charset='',$contentType='',$prefix='') {
         $this->view->display('',$charset,$contentType,$content,$prefix);
     }
 
     /**
-     *  获取输出页面内容
+     * 获取输出页面内容
      * 调用内置的模板引擎fetch方法，
      * @access protected
      * @param string $templateFile 指定要调用的模板文件
      * 默认为空 由系统自动定位模板文件
      * @param string $content 模板输出内容
-     * @param string $prefix 模板缓存前缀* 
+     * @param string $prefix 模板缓存前缀*
      * @return string
      */
     protected function fetch($templateFile='',$content='',$prefix='') {
@@ -84,7 +91,7 @@ abstract class Controller {
     }
 
     /**
-     *  创建静态页面
+     * 创建静态页面
      * @access protected
      * @htmlfile 生成的静态文件名称
      * @htmlpath 生成的静态文件路径
@@ -93,9 +100,9 @@ abstract class Controller {
      * @return string
      */
     protected function buildHtml($htmlfile='',$htmlpath='',$templateFile='') {
-        $content    =   $this->fetch($templateFile);
-        $htmlpath   =   !empty($htmlpath)?$htmlpath:HTML_PATH;
-        $htmlfile   =   $htmlpath.$htmlfile.C('HTML_FILE_SUFFIX');
+        $content = $this->fetch($templateFile);
+        $htmlpath = !empty($htmlpath)?$htmlpath:HTML_PATH;
+        $htmlfile = $htmlpath.$htmlfile.C('HTML_FILE_SUFFIX');
         Storage::put($htmlfile,$content,'html');
         return $content;
     }
@@ -134,7 +141,7 @@ abstract class Controller {
      * @return mixed
      */
     public function get($name='') {
-        return $this->view->get($name);      
+        return $this->view->get($name);
     }
 
     public function __get($name) {
@@ -205,28 +212,32 @@ abstract class Controller {
      * @param mixed $data 要返回的数据
      * @param String $type AJAX返回数据格式
      * @return void
+    改函数主要是以ajax的方式返回数据。针对ajax，返回的数据格式有很多。
+    第一是json格式，第二是xml格式，第三是jsonp格式，第四是可执行的js脚本，第五是自定义返回的格式。
+    tp以标签的方式让我们扩展返回的格式。
      */
     protected function ajaxReturn($data,$type='') {
-        if(empty($type)) $type  =   C('DEFAULT_AJAX_RETURN');
+        //DEFAULT_AJAX_RETURN ---  默认AJAX数据返回格式,可选JSON XML ...
+        if(empty($type)) $type = C('DEFAULT_AJAX_RETURN');
         switch (strtoupper($type)){
             case 'JSON' :
                 // 返回JSON数据格式到客户端 包含状态信息
                 header('Content-Type:application/json; charset=utf-8');
                 exit(json_encode($data));
-            case 'XML'  :
+            case 'XML' :
                 // 返回xml格式数据
                 header('Content-Type:text/xml; charset=utf-8');
                 exit(xml_encode($data));
             case 'JSONP':
                 // 返回JSON数据格式到客户端 包含状态信息
                 header('Content-Type:application/json; charset=utf-8');
-                $handler  =   isset($_GET[C('VAR_JSONP_HANDLER')]) ? $_GET[C('VAR_JSONP_HANDLER')] : C('DEFAULT_JSONP_HANDLER');
-                exit($handler.'('.json_encode($data).');');  
+                $handler = isset($_GET[C('VAR_JSONP_HANDLER')]) ? $_GET[C('VAR_JSONP_HANDLER')] : C('DEFAULT_JSONP_HANDLER');
+                exit($handler.'('.json_encode($data).');');
             case 'EVAL' :
                 // 返回可执行的js脚本
                 header('Content-Type:text/html; charset=utf-8');
-                exit($data);            
-            default     :
+                exit($data);
+            default :
                 // 用于扩展其他返回格式数据
                 Hook::listen('ajax_return',$data);
         }
@@ -242,7 +253,7 @@ abstract class Controller {
      * @return void
      */
     protected function redirect($url,$params=array(),$delay=0,$msg='') {
-        $url    =   U($url,$params);
+        $url = U($url,$params);
         redirect($url,$delay,$msg);
     }
 
@@ -256,13 +267,22 @@ abstract class Controller {
      * @param mixed $ajax 是否为Ajax方式 当数字时指定跳转时间
      * @access private
      * @return void
+    跳转的原理主要是在服务器端向客户端发送一个页面，在此页面上有跳转的数据提示信息和js代码。js代码将助用户去跳转。
+    tp的此方法主要是对跳转的一个封装。
+    此函数需要你传入几个参数：
+    第一：跳转后给用户的提示信息
+    第二：跳转的状态（默认是1）
+    第三：需要跳转到哪里
+    第四：是否是ajax跳转（默认为false）
+    程序首先会判断现在的请求是否是ajax请求，如果是ajax请求，那么就以ajax的方式返回ajax的数据和提示信息以及跳转的网址，
+     至于客户端接收到后怎么处理这些数据，服务器端就不会再管了如果不是
      */
     private function dispatchJump($message,$status=1,$jumpUrl='',$ajax=false) {
         if(true === $ajax || IS_AJAX) {// AJAX提交
-            $data           =   is_array($ajax)?$ajax:array();
-            $data['info']   =   $message;
-            $data['status'] =   $status;
-            $data['url']    =   $jumpUrl;
+            $data = is_array($ajax)?$ajax:array();
+            $data['info'] = $message;
+            $data['status'] = $status;
+            $data['url'] = $jumpUrl;
             $this->ajaxReturn($data);
         }
         if(is_int($ajax)) $this->assign('waitSecond',$ajax);
@@ -270,30 +290,30 @@ abstract class Controller {
         // 提示标题
         $this->assign('msgTitle',$status? L('_OPERATION_SUCCESS_') : L('_OPERATION_FAIL_'));
         //如果设置了关闭窗口，则提示完毕后自动关闭窗口
-        if($this->get('closeWin'))    $this->assign('jumpUrl','javascript:window.close();');
-        $this->assign('status',$status);   // 状态
+        if($this->get('closeWin')) $this->assign('jumpUrl','javascript:window.close();');
+        $this->assign('status',$status); // 状态
         //保证输出不受静态缓存影响
         C('HTML_CACHE_ON',false);
         if($status) { //发送成功信息
             $this->assign('message',$message);// 提示信息
             // 成功操作后默认停留1秒
-            if(!isset($this->waitSecond))    $this->assign('waitSecond','1');
+            if(!isset($this->waitSecond)) $this->assign('waitSecond','1');
             // 默认操作成功自动返回操作前页面
             if(!isset($this->jumpUrl)) $this->assign("jumpUrl",$_SERVER["HTTP_REFERER"]);
             $this->display(C('TMPL_ACTION_SUCCESS'));
         }else{
             $this->assign('error',$message);// 提示信息
             //发生错误时候默认停留3秒
-            if(!isset($this->waitSecond))    $this->assign('waitSecond','3');
+            if(!isset($this->waitSecond)) $this->assign('waitSecond','3');
             // 默认发生错误的话自动返回上页
             if(!isset($this->jumpUrl)) $this->assign('jumpUrl',"javascript:history.back(-1);");
             $this->display(C('TMPL_ACTION_ERROR'));
-            // 中止执行  避免出错后继续执行
+            // 中止执行 避免出错后继续执行
             exit ;
         }
     }
 
-   /**
+    /**
      * 析构方法
      * @access public
      */

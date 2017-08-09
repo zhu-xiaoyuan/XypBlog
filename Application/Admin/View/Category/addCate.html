@@ -160,6 +160,11 @@
                 alert_info('warning' , '提示' , '类别名称不能为空!');
                 return false;
             };
+            var r = /^\+?[0-9][0-9]*$/;　　//正整数
+            if(order != '' && !r.test(order)){
+                alert_info('warning' , '提示' , '排序字段为数字!');
+                return false;
+            }
             return {
                 id:id,
                 name:name,

@@ -976,10 +976,10 @@ function cookie($name, $value='', $option=null) {
  * 加载动态扩展文件
  * @return void
  */
-function load_ext_file($path) {
+function ($path) {
     // 加载自定义外部文件
-    if(C('LOAD_EXT_FILE')) {
-        $files      =  explode(',',C('LOAD_EXT_FILE'));
+    if(C('')) {
+        $files      =  explode(',',C(''));
         foreach ($files as $file){
             $file   = $path.'Common/'.$file.'.php';
             if(is_file($file)) include $file;

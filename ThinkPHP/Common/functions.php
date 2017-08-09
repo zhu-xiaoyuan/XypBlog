@@ -146,14 +146,17 @@ function G($start,$end='',$dec=4) {
  */
 function L($name=null, $value=null) {
     static $_lang = array();
+
     // 空参数返回所有定义
     if (empty($name))
         return $_lang;
+
     // 判断语言获取(或设置)
     // 若不存在,直接返回全大写$name
     if (is_string($name)) {
         $name   =   strtoupper($name);
         if (is_null($value)){
+
             return isset($_lang[$name]) ? $_lang[$name] : $name;
         }elseif(is_array($value)){
             // 支持变量
@@ -812,19 +815,34 @@ function U($url='',$vars='',$suffix=true,$domain=false) {
     // 解析URL
     $info   =  parse_url($url);
     $url    =  !empty($info['path'])?$info['path']:ACTION_NAME;
+    /*
+        'Blog/read#comment?id=1'
+        array(2) {
+          ["path"] => string(9) "Blog/read"
+          ["fragment"] => string(12) "comment?id=1"
+        }
+     */
     if(isset($info['fragment'])) { // 解析锚点
         $anchor =   $info['fragment'];
         if(false !== strpos($anchor,'?')) { // 解析参数
             list($anchor,$info['query']) = explode('?',$anchor,2);
-        }        
+        }
+        // 若存在子域名继续解析
         if(false !== strpos($anchor,'@')) { // 解析域名
             list($anchor,$host)    =   explode('@',$anchor, 2);
         }
+        // 如果你的应用涉及到多个子域名的操作地址，那么也可以在U方法里面指定需要生成地址的域名
+        // @后面传入需要指定的域名即可。 'Blog/read@blog.thinkphp.cn','id=1'
     }elseif(false !== strpos($url,'@')) { // 解析域名
+
+        // $url = Blog/read
+        // $host = blog.thinkphp.cn
         list($url,$host)    =   explode('@',$info['path'], 2);
     }
     // 解析子域名
     if(isset($host)) {
+        // strpos返回的是指定字符在字符串中首次出现的位置 strpos('zhuxiaoyuan.cn','.') --- 11
+        // strstr返回首次出现位置之后的子字符串，包括出现位置的字符 strstr('zhuxiaoyuan.cn', '.') --- .cn
         $domain = $host.(strpos($host,'.')?'':strstr($_SERVER['HTTP_HOST'],'.'));
     }elseif($domain===true){
         $domain = $_SERVER['HTTP_HOST'];
@@ -844,18 +862,25 @@ function U($url='',$vars='',$suffix=true,$domain=false) {
 
     // 解析参数
     if(is_string($vars)) { // aaa=1&bbb=2 转换成数组
+        /* $vars = [
+            'aaa'=>1,
+            'bbb'=>2
+            ]
+         */
         parse_str($vars,$vars);
     }elseif(!is_array($vars)){
         $vars = array();
     }
+
+    // 将url中的参数和调用U()方法是传递的参数进行合并
     if(isset($info['query'])) { // 解析地址里面参数 合并到vars
         parse_str($info['query'],$params);
         $vars = array_merge($params,$vars);
     }
     
     // URL组装
-    $depr       =   C('URL_PATHINFO_DEPR');
-    $urlCase    =   C('URL_CASE_INSENSITIVE');
+    $depr       =   C('URL_PATHINFO_DEPR'); // /
+    $urlCase    =   C('URL_CASE_INSENSITIVE'); // 默认false 表示URL区分大小写 true则表示不区分大小写
     if($url) {
         if(0=== strpos($url,'/')) {// 定义路由
             $route      =   true;
@@ -868,14 +893,18 @@ function U($url='',$vars='',$suffix=true,$domain=false) {
                 $url    =   str_replace('/',$depr,$url);
             }
             // 解析模块、控制器和操作
+            // 去除前后 /
             $url        =   trim($url,$depr);
             $path       =   explode($depr,$url);
             $var        =   array();
-            $varModule      =   C('VAR_MODULE');
-            $varController  =   C('VAR_CONTROLLER');
-            $varAction      =   C('VAR_ACTION');
+            $varModule      =   C('VAR_MODULE');  // m
+            $varController  =   C('VAR_CONTROLLER'); // c
+            $varAction      =   C('VAR_ACTION'); // a
+
             $var[$varAction]       =   !empty($path)?array_pop($path):ACTION_NAME;
             $var[$varController]   =   !empty($path)?array_pop($path):CONTROLLER_NAME;
+
+            // 操作名映射
             if($maps = C('URL_ACTION_MAP')) {
                 if(isset($maps[strtolower($var[$varController])])) {
                     $maps    =   $maps[strtolower($var[$varController])];
@@ -884,11 +913,15 @@ function U($url='',$vars='',$suffix=true,$domain=false) {
                     }
                 }
             }
+
+            // 控制器映射
             if($maps = C('URL_CONTROLLER_MAP')) {
                 if($controller = array_search(strtolower($var[$varController]),$maps)){
                     $var[$varController] = $controller;
                 }
             }
+
+            // 不区分大小写
             if($urlCase) {
                 $var[$varController]   =   parse_name($var[$varController]);
             }
@@ -903,11 +936,14 @@ function U($url='',$vars='',$suffix=true,$domain=false) {
                     }
                 }
             }
+            // 模块名映射
             if($maps = C('URL_MODULE_MAP')) {
                 if($_module = array_search(strtolower($var[$varModule]),$maps)){
                     $var[$varModule] = $_module;
                 }
             }
+
+
             if(isset($var[$varModule])){
                 $module =   $var[$varModule];
                 unset($var[$varModule]);
@@ -1332,6 +1368,7 @@ function cookie($name='', $value='', $option=null) {
  */
 function load_ext_file($path) {
     // 加载自定义外部文件
+    // LOAD_EXT_FILE 自定义外部文件内容，引入外部文件
     if($files = C('LOAD_EXT_FILE')) {
         $files      =  explode(',',$files);
         foreach ($files as $file){
