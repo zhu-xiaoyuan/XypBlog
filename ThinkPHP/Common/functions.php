@@ -220,6 +220,7 @@ function T($template='',$layer=''){
         $template   =   'http://'.str_replace(':', '/',$template);
     }
     $info   =   parse_url($template);
+
     $file   =   $info['host'].(isset($info['path'])?$info['path']:'');
     $module =   isset($info['user'])?$info['user'].'/':MODULE_NAME.'/';
     $extend =   $info['scheme'];
@@ -252,6 +253,7 @@ function T($template='',$layer=''){
     }elseif('/' != $depr){
         $file   =   substr_count($file,'/')>1 ? substr_replace($file,$depr,strrpos($file,'/'),1) : str_replace('/', $depr, $file);
     }
+
     return $baseUrl.($theme?$theme.'/':'').$file.C('TMPL_TEMPLATE_SUFFIX');
 }
 

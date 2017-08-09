@@ -108,13 +108,14 @@ class View {
      * @param string $prefix 模板缓存前缀
      * @return string
      */
-    /* 我们已经根据用户传入的模板地址表达式得到了模板文件地址，接下来就是调用模板引擎来解析这个模板。
+    /* 接下来就是调用模板引擎来解析这个模板。
      * 在view类的fetch方法中并没有直接调用模板引擎template类的的方法去解析模板，而是去调用了一个view_parse标签，
      * 在这个标签上绑定了行为模式扩展类ParseTemplateBehavior，模板的解析就是在这个类的run方法中进行的，
      * 这个类总我们不仅而已使用tp自带的模板引擎，还可以使用其他开源第三方的模板引擎类，具有很好的高扩展性。
      */
     public function fetch($templateFile='',$content='',$prefix='') {
         if(empty($content)) {
+            // 返回具体的模板文件路径
             $templateFile   =   $this->parseTemplate($templateFile);
             // 模板文件不存在直接返回
             if(!is_file($templateFile)) E(L('_TEMPLATE_NOT_EXIST_').':'.$templateFile);
@@ -122,7 +123,7 @@ class View {
         // 页面缓存
         ob_start();
         ob_implicit_flush(0);
-        if('php' == strtolower(C('TMPL_ENGINE_TYPE'))) { // 使用PHP原生模板
+        if('php' == strtolower(C('TMPL_ENGINE_TYPE'))) { // 使用PHP原生模板，是直接引入
             $_content   =   $content;
             // 模板阵列变量分解成为独立变量
             extract($this->tVar, EXTR_OVERWRITE);
@@ -150,11 +151,12 @@ class View {
     public function parseTemplate($template='') {
         //如果$template是一个文件地址的话，那么就直接返回该地址。这是最简单的一种使用方式。
         //这里的文件地址是一个相对文件路径地址，要注意模板文件位置是相对于项目的入口文件
-        if(is_file($template)) {
+
+        if(is_file($template)) {  // './Template/Public/menu.html' true
             return $template;
         }
 
-        //获取模板文件的分隔符，模板文件CONTROLLER_NAME与ACTION_NAME之间的分割符
+        //获取模板文件的分隔符，模板文件CONTROLLER_NAME与ACTION_NAME之间的分割符 --- /
         $depr       =   C('TMPL_FILE_DEPR');
         //将冒号替换成分隔符
         $template   =   str_replace(':', $depr, $template);
@@ -174,30 +176,40 @@ class View {
 */
         // 获取当前模块
         $module   =  MODULE_NAME;
+        // [模块@][控制器:][操作]
         if(strpos($template,'@')){ // 跨模块调用模版文件
             list($module,$template)  =   explode('@',$template);
         }
         // 获取当前主题的模版路径
-        if(!defined('THEME_PATH')){
+        if(!defined('THEME_PATH')){ // 不存在模板默认路径时，使用每个模块下的View目录作为模板目录
             if(C('VIEW_PATH')){ // 模块设置独立的视图目录
                 $tmplPath   =   C('VIEW_PATH');
             }else{  // 定义TMPL_PATH 改变全局的视图目录到模块之外
+                // 'DEFAULT_V_LAYER' ---  'View', // 默认的视图层名称
                 $tmplPath   =   defined('TMPL_PATH')? TMPL_PATH.$module.'/' : APP_PATH.$module.'/'.C('DEFAULT_V_LAYER').'/';
             }
+            // $tmplPath --- ./Application/Admin/View/
+            // $theme 具体的模板文件名
             define('THEME_PATH', $tmplPath.$theme);
+
         }
 
         // 分析模板文件规则
         /*
-        然后分析地址表达式中的模板规则，如果地址表达式为空，或者只是传了一个模块名，
+        分析地址表达式中的模板规则，如果地址表达式为空，或者只是传了一个模块名，
         那么这里的template就为空，那么默认的地址就是默认控制器下的默认方法
         */
         if('' == $template) {
-            // 如果模板文件名为空 按照默认规则定位
+            // 如果模板文件名为空 按照默认规则定位 默认是使用控制器下的方法名作为模板名称。
+            // display();
             $template = CONTROLLER_NAME . $depr . ACTION_NAME;
-        }elseif(false === strpos($template, $depr)){
-            $template = CONTROLLER_NAME . $depr . $template;
+        }elseif(false === strpos($template, $depr)){ // 通过判断传入的参数是否是一个路径。
+            // dispaly('edit');
+            $template = CONTROLLER_NAME . $depr . $template; // 如果是传入具体的模板文件名，拼接上具体的控制器名称。
         }
+
+        // 如果传入的是模板文件的路径，直接使用。
+        // display('./Template/Public/menu.html');
         $file   =   THEME_PATH.$template.C('TMPL_TEMPLATE_SUFFIX');
         if(C('TMPL_LOAD_DEFAULTTHEME') && THEME_NAME != C('DEFAULT_THEME') && !is_file($file)){
             // 找不到当前主题模板的时候定位默认主题中的模板
@@ -227,9 +239,9 @@ class View {
             $theme = $this->theme;
         }else{
             /* 获取模板主题名称 */
-            $theme =  C('DEFAULT_THEME');
-            if(C('TMPL_DETECT_THEME')) {// 自动侦测模板主题
-                $t = C('VAR_TEMPLATE');
+            $theme =  C('DEFAULT_THEME'); // 默认模板主题名称
+            if(C('TMPL_DETECT_THEME')) {// 自动侦测模板主题 false
+                $t = C('VAR_TEMPLATE'); // 默认模板切换变量 t
                 if (isset($_GET[$t])){
                     $theme = $_GET[$t];
                 }elseif(cookie('think_template')){
@@ -241,6 +253,7 @@ class View {
                 cookie('think_template',$theme,864000);
             }
         }
+
         defined('THEME_NAME') || define('THEME_NAME',   $theme);                  // 当前模板主题名称
         return $theme?$theme . '/':'';
     }

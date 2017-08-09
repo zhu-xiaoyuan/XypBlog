@@ -73,7 +73,9 @@ class  Template {
      */
     public function fetch($templateFile,$templateVar,$prefix='') {
         $this->tVar         =   $templateVar;
+        // 加载主模板并缓存
         $templateCacheFile  =   $this->loadTemplate($templateFile,$prefix);
+        //
         Storage::load($templateCacheFile,$this->tVar,null,'tpl');
     }
 
@@ -86,13 +88,18 @@ class  Template {
      * @throws ThinkExecption
      */
     public function loadTemplate ($tmplTemplateFile,$prefix='') {
+
+        // 如果是文件获取文件内容。
         if(is_file($tmplTemplateFile)) {
             $this->templateFile    =  $tmplTemplateFile;
             // 读取模板文件内容
             $tmplContent =  file_get_contents($tmplTemplateFile);
         }else{
+            // 不是文件的话就是内容了，直接获取。
             $tmplContent =  $tmplTemplateFile;
         }
+
+
          // 根据模版文件名定位缓存文件
         $tmplCacheFile = $this->config['cache_path'].$prefix.md5($tmplTemplateFile).$this->config['cache_suffix'];
 
@@ -102,11 +109,14 @@ class  Template {
                 $tmplContent = str_replace('{__NOLAYOUT__}','',$tmplContent);
             }else{ // 替换布局的主体内容
                 $layoutFile  =  THEME_PATH.C('LAYOUT_NAME').$this->config['template_suffix'];
+                // 将子页面上的内容替换到指定标签位置
                 $tmplContent = str_replace($this->config['layout_item'],$tmplContent,file_get_contents($layoutFile));
             }
         }
         // 编译模板内容
         $tmplContent =  $this->compiler($tmplContent);
+
+        // 生成编译好的文件
         Storage::put($tmplCacheFile,trim($tmplContent),'tpl');
         return $tmplCacheFile;
     }
@@ -143,8 +153,10 @@ class  Template {
         if(empty($content)) return '';
         $begin      =   $this->config['taglib_begin'];
         $end        =   $this->config['taglib_end'];
-        // 检查include语法
+
+        // 检查include语法 包括 include，<extend> <block>的模板替换
         $content    =   $this->parseInclude($content);
+
         // 检查PHP语法
         $content    =   $this->parsePhp($content);
         // 首先替换literal标签内容
@@ -178,6 +190,7 @@ class  Template {
         }
         //解析普通模板标签 {tagName}
         $content = preg_replace_callback('/('.$this->config['tmpl_begin'].')([^\d\w\s'.$this->config['tmpl_begin'].$this->config['tmpl_end'].'].+?)('.$this->config['tmpl_end'].')/is', array($this, 'parseTag'),$content);
+
         return $content;
     }
 
@@ -191,6 +204,7 @@ class  Template {
         if(C('TMPL_DENY_PHP') && false !== strpos($content,'<?php')) {
             E(L('_NOT_ALLOW_PHP_'));
         }
+
         return $content;
     }
 
@@ -218,9 +232,10 @@ class  Template {
 
     // 解析模板中的include标签
     protected function parseInclude($content, $extend = true) {
-        // 解析继承
+        // 解析继承 返回继承过后替换了block块的完整页面。
         if($extend)
             $content    =   $this->parseExtend($content);
+
         // 解析布局
         $content    =   $this->parseLayout($content);
         // 读取模板中的include标签
@@ -240,20 +255,40 @@ class  Template {
     // 解析模板中的extend标签
     protected function parseExtend($content) {
         $begin      =   $this->config['taglib_begin'];
-        $end        =   $this->config['taglib_end'];        
+        $end        =   $this->config['taglib_end'];
+
         // 读取模板中的继承标签
+        /*
+         $matches ---   array(2) {
+              [0] => string(26) "<extend name="Base:base"/>"
+              [1] => string(16) "name="Base:base""
+            }
+         */
         $find       =   preg_match('/'.$begin.'extend\s(.+?)\s*?\/'.$end.'/is',$content,$matches);
+
         if($find) {
-            //替换extend标签
+            //替换extend标签  将extend标签去掉
             $content    =   str_replace($matches[0],'',$content);
+
             // 记录页面中的block标签
             preg_replace_callback('/'.$begin.'block\sname=[\'"](.+?)[\'"]\s*?'.$end.'(.*?)'.$begin.'\/block'.$end.'/is', array($this, 'parseBlock'),$content);
+
             // 读取继承模板
+            // $matches[1] --- name="Base:base"
+            /*
+            array(1) {
+              ["name"] => string(9) "Base:base"
+            }
+             */  //
             $array      =   $this->parseXmlAttrs($matches[1]);
+            // 获取所继承模板的内容
             $content    =   $this->parseTemplateName($array['name']);
+
             $content    =   $this->parseInclude($content, false); //对继承模板中的include进行分析
+
             // 替换block标签
             $content = $this->replaceBlock($content);
+
         }else{
             $content    =   preg_replace_callback('/'.$begin.'block\sname=[\'"](.+?)[\'"]\s*?'.$end.'(.*?)'.$begin.'\/block'.$end.'/is', function($match){return stripslashes($match[2]);}, $content);            
         }
@@ -267,11 +302,17 @@ class  Template {
      * @return array
      */
     private function parseXmlAttrs($attrs) {
+
         $xml        =   '<tpl><tag '.$attrs.' /></tpl>';
+
+        // 将XML字符串解释为对象
         $xml        =   simplexml_load_string($xml);
+
         if(!$xml)
             E(L('_XML_TAG_ERROR_'));
         $xml        =   (array)($xml->tag->attributes());
+
+        // 返回字符串键名全为小写或大写的数组
         $array      =   array_change_key_case($xml['@attributes']);
         return $array;
     }
@@ -319,6 +360,8 @@ class  Template {
             $content = $name[2];
             $name    = $name[1];
         }
+
+
         $this->block[$name]  =   $content;
         return '';
     }
@@ -363,6 +406,7 @@ class  Template {
     public function getIncludeTagLib(& $content) {
         //搜索是否有TagLib标签
         $find = preg_match('/'.$this->config['taglib_begin'].'taglib\s(.+?)(\s*?)\/'.$this->config['taglib_end'].'\W/is',$content,$matches);
+
         if($find) {
             //替换TagLib标签
             $content        =   str_replace($matches[0],'',$content);
@@ -677,6 +721,7 @@ class  Template {
      * @return string
      */    
     private function parseTemplateName($templateName){
+
         if(substr($templateName,0,1)=='$')
             //支持加载变量文件名
             $templateName = $this->get(substr($templateName,1));
@@ -686,11 +731,13 @@ class  Template {
             if(empty($templateName)) continue;
             if(false === strpos($templateName,$this->config['template_suffix'])) {
                 // 解析规则为 模块@主题/控制器/操作
+                // 返回模板路径 ./Application/Admin/View/Base/base.html
                 $templateName   =   T($templateName);
             }
             // 获取模板文件内容
             $parseStr .= file_get_contents($templateName);
         }
+
         return $parseStr;
     }    
 }

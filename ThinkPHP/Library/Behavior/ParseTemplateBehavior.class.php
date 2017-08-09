@@ -18,15 +18,18 @@ class ParseTemplateBehavior {
 
     // 行为扩展的执行入口必须是run
     public function run(&$_data){
+        // 默认模板引擎 以下设置仅对使用Think模板引擎有效 Think
         $engine             =   strtolower(C('TMPL_ENGINE_TYPE'));
         $_content           =   empty($_data['content'])?$_data['file']:$_data['content'];
         $_data['prefix']    =   !empty($_data['prefix'])?$_data['prefix']:C('TMPL_CACHE_PREFIX');
         if('think'==$engine){ // 采用Think模板引擎
+            // 检查缓存内容是否有效
             if((!empty($_data['content']) && $this->checkContentCache($_data['content'],$_data['prefix'])) 
                 ||  $this->checkCache($_data['file'],$_data['prefix'])) { // 缓存有效
                 //载入模版缓存文件
                 Storage::load(C('CACHE_PATH').$_data['prefix'].md5($_content).C('TMPL_CACHFILE_SUFFIX'),$_data['var']);
             }else{
+                // 如果缓存文件已失效，使用ThinkPHP内置模板引擎类编译文件
                 $tpl = Think::instance('Think\\Template');
                 // 编译并加载模板文件
                 $tpl->fetch($_content,$_data['var'],$_data['prefix']);
@@ -37,7 +40,8 @@ class ParseTemplateBehavior {
                 $class  =   $engine;
             }else{
                 $class   =  'Think\\Template\\Driver\\'.ucwords($engine);                
-            }            
+            }
+            // 使用第三方模板文件进行解析
             if(class_exists($class)) {
                 $tpl   =  new $class;
                 $tpl->fetch($_content,$_data['var']);
